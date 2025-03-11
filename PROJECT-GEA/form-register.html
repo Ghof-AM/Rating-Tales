@@ -2,8 +2,9 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <link rel='icon' type='img/png'  href='Untitled142_20250310223718.png' sizes="auto">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rating Tales</title>
+    <title>Rate Tales</title>
     <style>
         * {
             margin: 0;
@@ -16,25 +17,25 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: url('movie-3949479_960_720.webp') no-repeat center center fixed;
-            background-size: cover;
+            background: url('5302920.jpg') no-repeat center center fixed;
+            background-size: cover;;
         }
         .register-container {
-            background: white;
+            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
             padding: 30px;
             width: 400px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.2);
             animation: fadeIn 1s ease-in-out;
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
+            from { opacity: 0; transform: translateY(-50px); }
             to { opacity: 1; transform: translateY(0); }
         }
         h2 {
             text-align: center;
             margin-bottom: 20px;
-            color: #333;
+            color: #00e4f9;
         }
         .input-group {
             margin-bottom: 15px;
@@ -43,28 +44,25 @@
             font-weight: 600;
             display: block;
             margin-bottom: 5px;
+            color: #b0e0e6;
         }
         input, select {
             width: 100%;
             padding: 10px;
-            border: 1px solid #ccc;
+            border: 1px solid #00bcd4;
             border-radius: 5px;
+            background: #0a192f;
+            color: #737878;
             transition: 0.3s;
         }
         input:focus, select:focus {
-            border-color: #ff758c;
-            box-shadow: 0 0 5px rgba(255, 117, 140, 0.5);
-        }
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-        }
-        .checkbox-group input {
-            margin-right: 10px;
+            border-color: #00e4f9;
+            box-shadow: 0 0 5px rgba(0, 228, 249, 0.8);
+            outline: none;
         }
         .btn {
             width: 100%;
-            background: #9a5c05;
+            background: #00bcd4;
             color: white;
             padding: 10px;
             border: none;
@@ -74,21 +72,22 @@
             transition: 0.3s;
         }
         .btn:hover {
-            background: #6c3502;
+            background: #00e4f9;
+            box-shadow: 0 0 10px rgba(0, 228, 249, 0.5);
         }
         .login-link {
             text-align: center;
             margin-top: 15px;
             font-size: 14px;
+            color: #b0e0e6;
         }
         .login-link a {
-            color: #a931ff;
+            color: #00e4f9;
             text-decoration: none;
         }
         .login-link a:hover {
             text-decoration: underline;
         }
-
     </style>
 </head>
 <body>
@@ -101,15 +100,15 @@
             </div>
             <div class="input-group">
                 <label for="Usia">Usia</label>
-                <input type="Usia" id="Usia" placeholder="Usia anda saat ini" required>
+                <input type="number" id="Usia" placeholder="Usia anda saat ini" required min="1">
             </div>
             <div class="input-group">
                 <label for="gender">Jenis Kelamin</label>
-                <select id="gender">
-                    <option value="">Pilih...</option>
+                <select id="gender" required>
+                    <option >Pilih...</option>
                     <option value="Laki-laki">Laki-laki</option>
                     <option value="Perempuan">Perempuan</option>
-                </select>
+                </select>                
             </div>
             <div class="input-group">
                 <label for="email">Email</label>
@@ -117,7 +116,7 @@
             </div>
             <div class="input-group">
                 <label for="password">Buat Password</label>
-                <input type="password" id="password" placeholder="buat password anda" required>
+                <input type="password" id="password" placeholder="Buat password anda" required minlength="6">
             </div>
             <div class="input-group">
                 <label for="confirm-password">Konfirmasi Password</label>
@@ -128,6 +127,16 @@
         <div class="login-link">
             Sudah punya akun? <a href="#">Masuk</a>
         </div>
+        <script>
+            document.querySelector("form").addEventListener("submit", function(event) {
+                let password = document.getElementById("password").value;
+                let confirmPassword = document.getElementById("confirm-password").value;
+                if (password !== confirmPassword) {
+                    alert("Password dan Konfirmasi Password tidak cocok!");
+                    event.preventDefault();
+                }
+            });
+        </script>        
     </div>
 </body>
 </html>
