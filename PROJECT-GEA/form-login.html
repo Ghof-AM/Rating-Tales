@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate Tales</title>
+    <link rel="icon" type="img/png" href="Untitled142_20250310223718.png" sizes="16x16">
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: url('bg.jpg') no-repeat center center/cover;
+        }
+        .login-container {
+            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.2);
+            animation: fadeIn 1s ease-in-out;
+            width: 350px;
+            text-align: center;
+            transition: 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .login-container:hover {
+            transform: scale(1.05);
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #00e4f9;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #00bcd4;
+            background: #0a192f;
+            color: #737878;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #00bcd4;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #00e4f9;
+            box-shadow: 0 0 10px rgba(0, 228, 249, 0.5);
+        }
+        .register-link {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #b0e0e6;
+        }
+        .register-link a {
+            color: #00e4f9;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+        .captcha-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        canvas {
+            border: 1px solid  #00e4f9;
+            border-radius: 5px;
+        }
+        .remember-me {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin: 10px 0;
+            color: #b0e0e6;
+        }
+        .remember-me input {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Login</h2>
+        <form onsubmit="return loginUser()">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+
+           
+
+            <div class="captcha-container">
+                <canvas id="captchaCanvas" width="120" height="40"></canvas>
+                <button type="button" onclick="generateCaptcha()">Reload</button>
+            </div>
+            <input type="text" id="captchaInput" placeholder="Enter CAPTCHA" required>
+            <p id="captchaMessage" style="color:red;"></p>
+
+            <button type="submit">Login</button>
+        </form>
+        <br>
+        <div id="g_id_onload" data-client_id="YOUR_GOOGLE_CLIENT_ID" data-callback="handleCredentialResponse"></div>
+        <div class="g_id_signin" data-type="standard"></div>
+        <p class="register-link">Belum punya akun? <a href="#" onclick="registerUser()">Klik disini untuk register</a></p>
+    </div>
+
+    <script>
+        let captchaCode = "";
+
+        function generateCaptcha() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            captchaCode = '';
+            for (let i = 0; i < 6; i++) {
+                captchaCode += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            drawCaptcha();
+        }
+
+        function drawCaptcha() {
+            const canvas = document.getElementById('captchaCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "lightgray";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.font = "24px Arial";
+            ctx.fillStyle = "black";
+            ctx.fillText(captchaCode, 15, 30);
+        }
+
+        function validateCaptcha() {
+            const input = document.getElementById('captchaInput').value;
+            if (input !== captchaCode) {
+                document.getElementById('captchaMessage').innerText = 'CAPTCHA Invalid!';
+                return false;
+            }
+            return true;
+        }
+
+        function loginUser() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+
+            if (!validateCaptcha()) {
+                return false;
+            }
+
+            
+            if (rememberMe) {
+                localStorage.setItem('rememberedUser', JSON.stringify({ username, password }));
+            } else {
+                localStorage.removeItem('rememberedUser');
+            }
+
+            alert('Login berhasil!');
+            return false;
+        }
+
+        function registerUser() {
+            const username = prompt("Masukkan username baru:");
+            if (!username) return;
+
+            const password = prompt("Masukkan password baru:");
+            if (!password) return;
+
+            localStorage.setItem(username, JSON.stringify({ password }));
+            alert('Registrasi berhasil! Silakan login.');
+        }
+
+        function checkRememberedUser() {
+            const rememberedUser = JSON.parse(localStorage.getItem('rememberedUser'));
+            if (rememberedUser) {
+                document.getElementById('username').value = rememberedUser.username;
+                document.getElementById('password').value = rememberedUser.password;
+                document.getElementById('rememberMe').checked = true;
+            }
+        }
+
+        window.onload = function () {
+            generateCaptcha();
+            checkRememberedUser();
+        };
+    </script>
+</body>
+</html>
