@@ -1,9 +1,20 @@
+```php
+<?php
+session_start();
+// Cek jika pengguna sudah login, arahkan ke Homescreen.php
+if (isset($_SESSION['user_id'])) {
+    header("Location: Homescreen.php");
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <link rel='icon' type='img/png'  href='Untitled142_20250310223718.png' sizes="auto">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="Untitled142_20250310223718.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <title>Rate Tales</title>
     <style>
         * {
@@ -16,14 +27,15 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            background: url('5302920.jpg') no-repeat center center fixed;
-            background-size: cover;;
+            min-height: 100vh;
+            background: url(../gambar/5302920.jpg) no-repeat center center fixed;
+            background-size: cover;
         }
         .register-container {
             background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
             padding: 30px;
-            width: 400px;
+            width: 100%;
+            max-width: 400px;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0, 255, 255, 0.2);
             animation: fadeIn 1s ease-in-out;
@@ -40,6 +52,9 @@
         .input-group {
             margin-bottom: 15px;
         }
+        .input-group input[type="checkbox"] {
+            width: auto;
+        }
         label {
             font-weight: 600;
             display: block;
@@ -52,8 +67,8 @@
             border: 1px solid #00bcd4;
             border-radius: 5px;
             background: #0a192f;
-            color: #737878;
-            transition: 0.3s;
+            color: #e0e0e0;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
         input:focus, select:focus {
             border-color: #00e4f9;
@@ -69,7 +84,7 @@
             border-radius: 5px;
             font-size: 16px;
             cursor: pointer;
-            transition: 0.3s;
+            transition: background 0.3s, box-shadow 0.3s;
         }
         .btn:hover {
             background: #00e4f9;
@@ -84,59 +99,185 @@
         .login-link a {
             color: #00e4f9;
             text-decoration: none;
+            font-weight: bold;
         }
         .login-link a:hover {
             text-decoration: underline;
+        }
+        .captcha-container {
+            margin-bottom: 15px;
+            color: #b0e0e6;
+        }
+        .captcha-container input {
+            margin-top: 5px;
+        }
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        #agreement-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+        #agreement-modal div {
+            background: #0a192f;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            color: #e0e0e0;
+        }
+        #agreement-modal h3 {
+            color: #00e4f9;
         }
     </style>
 </head>
 <body>
     <div class="register-container">
         <h2>Daftar Akun</h2>
-        <form>
+        <?php
+        // Tampilkan pesan error jika ada
+        if (isset($_SESSION['error'])) {
+            echo '<p class="error-message">' . htmlspecialchars($_SESSION['error']) . '</p>';
+            unset($_SESSION['error']);
+        }
+        ?>
+        <form id="register-form-element" action="register-process.php" method="POST" onsubmit="return validateForm()">
             <div class="input-group">
                 <label for="name">Nama Lengkap</label>
-                <input type="text" id="name" placeholder="Masukkan nama lengkap" required>
+                <input type="text" id="name" name="full_name" placeholder="Masukkan nama lengkap" required>
             </div>
             <div class="input-group">
-                <label for="Usia">Usia</label>
-                <input type="number" id="Usia" placeholder="Usia anda saat ini" required min="1">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Masukkan username" required>
+            </div>
+            <div class="input-group">
+                <label for="usia">Usia</label>
+                <input type="number" id="usia" name="age" placeholder="Usia anda saat ini" required min="1">
             </div>
             <div class="input-group">
                 <label for="gender">Jenis Kelamin</label>
-                <select id="gender" required>
-                    <option >Pilih...</option>
+                <select id="gender" name="gender" required>
+                <option value="">Pilih...</option>
                     <option value="Laki-laki">Laki-laki</option>
                     <option value="Perempuan">Perempuan</option>
-                </select>                
+                </select>
             </div>
             <div class="input-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" placeholder="Masukkan email" required>
+                <input type="email" id="email" name="email" placeholder="Masukkan email" required>
             </div>
             <div class="input-group">
                 <label for="password">Buat Password</label>
-                <input type="password" id="password" placeholder="Buat password anda" required minlength="6">
+                <input type="password" id="password" name="password" placeholder="Buat password anda" required minlength="6">
             </div>
             <div class="input-group">
                 <label for="confirm-password">Konfirmasi Password</label>
-                <input type="password" id="confirm-password" placeholder="Ulangi password" required>
+                <input type="password" id="confirm-password" name="confirm_password" placeholder="Ulangi password" required>
             </div>
-            <button type="submit" class="btn">Daftar</button>
+            <div class="captcha-container">
+                <label for="captcha-input">Verifikasi Captcha: <span id="captcha-question"></span></label>
+                <input type="text" id="captcha-input" name="captcha_input" placeholder="Masukkan jawaban" required>
+                <input type="hidden" id="captcha-answer" name="captcha_answer">
+            </div>
+            <div style="text-align: center; margin-bottom: 10px;">
+                <button type="button" id="agreement-btn" style="background: none; border: none; font-size: 24px; color: #00e4f9; cursor: pointer;">❗</button>
+            </div>
+            <div class="input-group" style="display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="agree-checkbox" name="agree" required>
+                <label for="agree-checkbox" style="margin: 0; color: #b0e0e6;">Saya menyetujui <b>Perjanjian Pengguna</b></label>
+            </div>
+            <button type="submit" class="btn" id="register-submit-btn">Daftar</button>
         </form>
-        <div class="login-link">
-            Sudah punya akun? <a href="#">Masuk</a>
-        </div>
-        <script>
-            document.querySelector("form").addEventListener("submit", function(event) {
-                let password = document.getElementById("password").value;
-                let confirmPassword = document.getElementById("confirm-password").value;
-                if (password !== confirmPassword) {
-                    alert("Password dan Konfirmasi Password tidak cocok!");
-                    event.preventDefault();
-                }
-            });
-        </script>        
+        <p class="login-link">Sudah punya akun? <a href="form-login.php">Login di sini</a></p>
     </div>
+    <div id="agreement-modal">
+        <div>
+            <h3>Perjanjian Pengguna</h3>
+            <p style="margin-top: 10px; font-size: 14px;">
+                <h5><b>Kebijakan Privasi</b></h5>
+                                Kebijakan Privasi ini menjelaskan bagaimana [Nama Website Anda] (“kami”) mengumpulkan, menyimpan, menggunakan, dan melindungi data pribadi Anda selama Anda menggunakan situs ini. Seluruh aktivitas pengelolaan data dilakukan sesuai dengan ketentuan Undang-Undang Republik Indonesia Nomor 27 Tahun 2022 tentang Perlindungan Data Pribadi (UU PDP). Dengan menggunakan situs ini dan mendaftarkan akun Anda, Anda memberikan persetujuan eksplisit kepada kami untuk memproses data pribadi Anda sebagaimana dijelaskan dalam kebijakan ini.
+                Kami dapat mengumpulkan informasi pribadi secara langsung saat Anda mendaftar atau menggunakan fitur di situs, seperti nama lengkap, alamat email, serta informasi terkait aktivitas Anda di situs ini, termasuk preferensi tontonan, ulasan, rating, dan riwayat interaksi. Semua data yang kami kumpulkan digunakan untuk tujuan yang sah dan proporsional, yakni untuk meningkatkan pengalaman Anda dalam menggunakan layanan kami. Kami menggunakannya untuk menyediakan fitur-fitur yang dipersonalisasi, memberikan rekomendasi konten, melakukan analisis internal, serta—dengan persetujuan Anda—menyampaikan informasi promosi atau konten yang relevan.
+                Data pribadi Anda akan disimpan selama akun Anda masih aktif, atau selama diperlukan untuk mendukung tujuan layanan. Kami menerapkan langkah-langkah teknis dan organisasi yang sesuai untuk melindungi data Anda dari akses yang tidak sah, kebocoran, atau penyalahgunaan. Kami tidak akan membagikan data pribadi Anda kepada pihak ketiga tanpa persetujuan eksplisit dari Anda, kecuali jika diharuskan oleh hukum atau dalam konteks penegakan hukum dan kewajiban hukum lainnya.
+                Sesuai dengan ketentuan UU PDP, Anda sebagai pemilik data memiliki hak untuk mengakses data pribadi Anda, meminta perbaikan atau penghapusan data, menarik kembali persetujuan atas pemrosesan data, serta mengajukan keberatan atas pemrosesan tertentu. Kami menghormati hak-hak tersebut dan akan menindaklanjuti setiap permintaan yang Anda sampaikan melalui saluran kontak resmi yang tersedia di situs kami.
+                Kami dapat memperbarui isi Kebijakan Privasi ini dari waktu ke waktu, terutama jika terjadi perubahan peraturan atau perkembangan teknologi yang memengaruhi cara kami memproses data pribadi Anda. Perubahan signifikan akan kami sampaikan melalui notifikasi di situs atau email. Dengan terus menggunakan layanan kami setelah perubahan diberlakukan, Anda dianggap telah menyetujui kebijakan yang diperbarui.
+                Jika Anda memiliki pertanyaan, permintaan, atau keluhan terkait kebijakan ini atau penggunaan data pribadi Anda, Anda dapat menghubungi kami melalui alamat email atau formulir kontak resmi yang tersedia di situs. Dengan menggunakan situs ini, Anda menyatakan telah membaca, memahami, dan menyetujui isi Kebijakan Privasi ini serta memberikan persetujuan eksplisit atas pengumpulan dan pemrosesan data pribadi Anda oleh kami.
+            </p>
+            <button id="close-agreement" class="btn" style="margin-top: 20px;">Tutup</button>
+        </div>
+    </div>
+
+    <script>
+        let captchaAnswer;
+
+        function generateCaptcha() {
+            const num1 = Math.floor(Math.random() * 10) + 1;
+            const num2 = Math.floor(Math.random() * 10) + 1;
+            captchaAnswer = num1 + num2;
+            document.getElementById('captcha-question').textContent = `${num1} + ${num2} = ?`;
+            document.getElementById('captcha-answer').value = captchaAnswer;
+            document.getElementById('captcha-input').value = '';
+        }
+
+        function validateForm() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const captchaInput = document.getElementById('captcha-input').value;
+
+            if (password !== confirmPassword) {
+                alert('Password dan Konfirmasi Password tidak cocok!');
+                return false;
+            }
+
+            if (parseInt(captchaInput) !== captchaAnswer) {
+                alert('Jawaban CAPTCHA salah!');
+                generateCaptcha();
+                return false;
+            }
+
+            return true;
+        }
+
+        document.addEventListener('DOMContentLoaded', generateCaptcha);
+
+        // Modal Agreement
+        const agreementBtn = document.getElementById('agreement-btn');
+        const agreementModal = document.getElementById('agreement-modal');
+        const closeAgreement = document.getElementById('close-agreement');
+        const agreeCheckbox = document.getElementById('agree-checkbox');
+        const registerSubmitBtn = document.getElementById('register-submit-btn');
+
+        agreementBtn.addEventListener('click', () => {
+            agreementModal.style.display = 'flex';
+        });
+
+        closeAgreement.addEventListener('click', () => {
+            agreementModal.style.display = 'none';
+        });
+
+        agreementModal.addEventListener('click', (e) => {
+            if (e.target === agreementModal) {
+                agreementModal.style.display = 'none';
+            }
+        });
+
+        agreeCheckbox.addEventListener('change', () => {
+            registerSubmitBtn.disabled = !agreeCheckbox.checked;
+        });
+
+        // Default: tombol Daftar disabled
+        registerSubmitBtn.disabled = true;
+    </script>
 </body>
 </html>
+```
