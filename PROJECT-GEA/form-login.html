@@ -1,11 +1,20 @@
+```php
+<?php
+session_start();
+// Cek jika pengguna sudah login, arahkan ke Homescreen.php
+if (isset($_SESSION['user_id'])) {
+    header("Location: Homescreen.php");
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rate Tales</title>
-    <link rel="icon" type="img/png" href="Untitled142_20250310223718.png" sizes="16x16">
-
+    <link rel="icon" type="image/png" href="Untitled142_20250310223718.png" sizes="16x16">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         * {
@@ -19,7 +28,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: url('bg.jpg') no-repeat center center/cover;
+            background: url(../gambar/5302920.jpg) no-repeat center center/cover;
         }
         .login-container {
             background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
@@ -86,7 +95,7 @@
             gap: 10px;
         }
         canvas {
-            border: 1px solid  #00e4f9;
+            border: 1px solid #00e4f9;
             border-radius: 5px;
         }
         .remember-me {
@@ -99,30 +108,43 @@
         .remember-me input {
             margin-right: 5px;
         }
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
     <div class="login-container">
         <h2>Login</h2>
-        <form onsubmit="return loginUser()">
-            <input type="text" id="username" placeholder="Username" required>
-            <input type="password" id="password" placeholder="Password" required>
-
-           
-
+        <?php
+        // Tampilkan pesan error jika ada
+        if (isset($_SESSION['error'])) {
+            echo '<p class="error-message">' . htmlspecialchars($_SESSION['error']) . '</p>';
+            unset($_SESSION['error']);
+        }
+        ?>
+        <form action="login-process.php" method="POST" onsubmit="return validateCaptcha()">
+            <input type="text" name="username" id="username" placeholder="Username" required>
+            <input type="password" name="password" id="password" placeholder="Password" required>
+            <div class="remember-me">
+                <input type="checkbox" name="remember_me" id="rememberMe">
+                <label for="rememberMe">Ingat Saya</label>
+            </div>
             <div class="captcha-container">
                 <canvas id="captchaCanvas" width="120" height="40"></canvas>
                 <button type="button" onclick="generateCaptcha()">Reload</button>
             </div>
-            <input type="text" id="captchaInput" placeholder="Enter CAPTCHA" required>
-            <p id="captchaMessage" style="color:red;"></p>
-
+            <input type="text" name="captcha_input" id="captchaInput" placeholder="Masukkan CAPTCHA" required>
+            <input type="hidden" name="captcha_code" id="captchaCode">
+            <p id="captchaMessage" class="error-message"></p>
             <button type="submit">Login</button>
         </form>
         <br>
         <div id="g_id_onload" data-client_id="YOUR_GOOGLE_CLIENT_ID" data-callback="handleCredentialResponse"></div>
         <div class="g_id_signin" data-type="standard"></div>
-        <p class="register-link">Belum punya akun? <a href="#" onclick="registerUser()">Klik disini untuk register</a></p>
+        <p class="register-link">Belum punya akun? <a href="form-register.php">Klik disini untuk register</a></p>
     </div>
 
     <script>
@@ -134,6 +156,7 @@
             for (let i = 0; i < 6; i++) {
                 captchaCode += chars.charAt(Math.floor(Math.random() * chars.length));
             }
+            document.getElementById('captchaCode').value = captchaCode;
             drawCaptcha();
         }
 
@@ -151,56 +174,16 @@
         function validateCaptcha() {
             const input = document.getElementById('captchaInput').value;
             if (input !== captchaCode) {
-                document.getElementById('captchaMessage').innerText = 'CAPTCHA Invalid!';
+                document.getElementById('captchaMessage').innerText = 'CAPTCHA Tidak Valid!';
                 return false;
             }
             return true;
         }
 
-        function loginUser() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const rememberMe = document.getElementById('rememberMe').checked;
-
-            if (!validateCaptcha()) {
-                return false;
-            }
-
-            
-            if (rememberMe) {
-                localStorage.setItem('rememberedUser', JSON.stringify({ username, password }));
-            } else {
-                localStorage.removeItem('rememberedUser');
-            }
-
-            alert('Login berhasil!');
-            return false;
-        }
-
-        function registerUser() {
-            const username = prompt("Masukkan username baru:");
-            if (!username) return;
-
-            const password = prompt("Masukkan password baru:");
-            if (!password) return;
-
-            localStorage.setItem(username, JSON.stringify({ password }));
-            alert('Registrasi berhasil! Silakan login.');
-        }
-
-        function checkRememberedUser() {
-            const rememberedUser = JSON.parse(localStorage.getItem('rememberedUser'));
-            if (rememberedUser) {
-                document.getElementById('username').value = rememberedUser.username;
-                document.getElementById('password').value = rememberedUser.password;
-                document.getElementById('rememberMe').checked = true;
-            }
-        }
-
         window.onload = function () {
             generateCaptcha();
-            checkRememberedUser();
         };
     </script>
 </body>
 </html>
+```
