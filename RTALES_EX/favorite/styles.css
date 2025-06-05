@@ -1,0 +1,465 @@
+/* favorite/styles.css */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #1a1a1a; /* Dark background */
+    color: #ffffff; /* White text */
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar Styles (Copy from beranda/styles.css for consistency) */
+.sidebar {
+    width: 250px;
+    background-color: #242424; /* Dark gray sidebar */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+}
+
+.logo h2 {
+    color: #00ffff; /* Teal logo color */
+    margin-bottom: 40px;
+    font-size: 24px;
+     text-align: center;
+}
+
+.nav-links {
+    list-style: none;
+    flex-grow: 1;
+     padding-top: 20px;
+}
+
+.nav-links li, .bottom-links li {
+    margin-bottom: 15px;
+}
+
+.nav-links a, .bottom-links a {
+    color: #ffffff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border-radius: 8px;
+    transition: background-color 0.3s, color 0.3s;
+    font-size: 15px;
+}
+
+.nav-links a:hover, .bottom-links a:hover {
+    background-color: #363636;
+    color: #00ffff;
+}
+
+.nav-links i, .bottom-links i {
+    margin-right: 15px;
+    width: 20px;
+     text-align: center;
+}
+
+.active a {
+    background-color: #363636;
+    color: #00ffff;
+    font-weight: bold;
+}
+.active a i {
+    color: #00ffff;
+}
+
+
+.bottom-links {
+    margin-top: auto;
+    list-style: none;
+    padding-top: 20px;
+    border-top: 1px solid #363636;
+}
+
+
+/* Main Content Styles */
+.main-content {
+    flex-grow: 1;
+    margin-left: 250px; /* Match sidebar width */
+    padding: 20px;
+    max-height: 100vh;
+    overflow-y: auto; /* Enable vertical scrolling */
+}
+
+/* Review Header Styles */
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #242424; /* Dark gray background */
+    border-radius: 15px;
+}
+
+.review-header h1 {
+    font-size: 28px;
+    color: #00ffff; /* Teal header */
+}
+
+.search-bar {
+    display: flex;
+    gap: 10px;
+}
+
+.search-bar input {
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: none;
+    background-color: #363636; /* Darker input background */
+    color: #ffffff;
+    width: 300px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+.search-bar input:focus {
+     border-color: #00ffff;
+     box-shadow: 0 0 0 2px rgba(0, 255, 255, 0.2);
+     outline: none;
+}
+
+.search-bar button {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    background-color: #00ffff; /* Teal button */
+    color: #1a1a1a; /* Dark text */
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.search-bar button:hover {
+    background-color: #00cccc; /* Darker teal on hover */
+}
+
+/* Review Grid Styles */
+.review-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px 0; /* Remove left/right padding to align with main content */
+}
+
+.movie-card {
+    background-color: #242424;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.movie-card:hover {
+    transform: translateY(-5px);
+}
+
+.movie-poster {
+    position: relative;
+    width: 100%;
+    padding-top: 150%; /* Aspect ratio 2:3 */
+    flex-shrink: 0;
+    cursor: pointer;
+     /* Fallback background if image fails */
+    background-color: #363636;
+}
+
+.movie-poster img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+     /* Hide broken image icon */
+    color: transparent;
+    font-size: 0;
+}
+/* Show alt text or a fallback if image fails to load */
+.movie-poster img::before {
+    content: attr(alt);
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #363636;
+    color: #ffffff;
+    text-align: center;
+    padding-top: 50%;
+    font-size: 16px;
+}
+
+
+.movie-actions {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 15px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+     z-index: 10;
+}
+
+.movie-card:hover .movie-actions {
+    opacity: 1;
+}
+
+.movie-actions form { /* Style form inside movie-actions */
+    margin: 0;
+    padding: 0;
+    display: flex; /* Use flex to center the button */
+}
+
+
+.action-btn {
+    background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 18px; /* Icon size */
+}
+
+.action-btn:hover {
+    background-color: #00ffff; /* Teal on hover */
+    color: #1a1a1a;
+}
+
+.movie-details {
+    padding: 15px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.movie-details h3 {
+    margin-bottom: 5px;
+    font-size: 16px;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.movie-info {
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.rating {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+}
+
+.stars {
+    color: #ffd700; /* Gold color for stars */
+    font-size: 1em;
+}
+.stars i {
+    margin-right: 2px;
+}
+
+.rating-count {
+    color: #888;
+    font-size: 14px;
+}
+
+/* Empty State Styles */
+.empty-state {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    text-align: center;
+    background-color: #242424;
+    border-radius: 15px;
+    margin: 20px 0;
+    color: #ffffff;
+}
+
+.empty-state i {
+    font-size: 4em;
+    color: #00ffff;
+    margin-bottom: 20px;
+}
+
+.empty-state p {
+    margin: 5px 0;
+    font-size: 1.2em;
+}
+
+.empty-state .subtitle {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.empty-state .subtitle a {
+     color: #00ffff;
+     text-decoration: none;
+     font-weight: bold;
+}
+.empty-state .subtitle a:hover {
+     text-decoration: underline;
+}
+
+/* Full width empty state for initial display */
+.empty-state.full-width {
+    width: 100%;
+    margin: 0;
+    min-height: 300px;
+}
+
+/* Alert Messages */
+.alert {
+    padding: 10px 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.alert.success {
+    background-color: #00ff0033;
+    color: #00ff00;
+    border: 1px solid #00ff0088;
+}
+
+.alert.error {
+    background-color: #ff000033;
+    color: #ff0000;
+    border: 1px solid #ff000088;
+}
+
+/* Scrollbar Styles (Copy from beranda/styles.css) */
+.main-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.main-content::-webkit-scrollbar-track {
+    background: #242424;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+    background: #363636;
+    border-radius: 4px;
+}
+
+.main-content::-webkit-scrollbar-thumb:hover {
+    background: #00ffff;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 70px;
+        padding: 10px;
+    }
+
+    .logo h2, .nav-links span, .bottom-links span {
+        display: none;
+    }
+
+    .nav-links i, .bottom-links i {
+        margin-right: 0;
+        width: 100%;
+        text-align: center;
+    }
+
+     .nav-links a, .bottom-links a {
+         justify-content: center;
+         padding: 10px 0;
+     }
+
+    .main-content {
+        margin-left: 70px;
+         padding: 10px;
+    }
+
+    .review-header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px;
+    }
+    .review-header h1 {
+        margin-bottom: 15px;
+        font-size: 24px;
+    }
+    .search-bar {
+        width: 100%;
+    }
+     .search-bar input {
+         width: 100%;
+     }
+
+    .movie-card {
+        flex: 0 0 150px; /* Smaller movie cards */
+        min-width: 150px;
+    }
+
+    .movie-card img {
+        height: 225px; /* Maintain 2:3 aspect ratio */
+    }
+     .movie-poster img::before {
+         font-size: 14px;
+     }
+
+
+    .movie-actions {
+        padding: 10px;
+        gap: 10px;
+    }
+    .action-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 16px;
+    }
+
+    .movie-details {
+        padding: 10px;
+    }
+     .movie-details h3 {
+         font-size: 14px;
+     }
+     .movie-info {
+         font-size: 12px;
+     }
+     .rating {
+         font-size: 0.9em;
+         gap: 5px;
+     }
+     .rating-count {
+         font-size: 12px;
+     }
+}

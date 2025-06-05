@@ -1,0 +1,319 @@
+/* style.css */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    /* Pastikan path gambar benar relatif terhadap file CSS */
+    background: url(../gambar/5302920.jpg) no-repeat center center fixed;
+    background-size: cover;
+}
+
+/* General form container styling */
+.form-container {
+    background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+    padding: 30px;
+    width: 100%;
+    max-width: 400px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 255, 255, 0.2);
+    opacity: 0; /* Initial state for JS animation */
+    transform: translateY(-50px); /* Initial state for JS animation */
+    transition: opacity 1s ease-in-out, transform 1s ease-in-out; /* Animation */
+    position: relative; /* Needed for Google button positioning if it becomes absolute */
+}
+
+/* Class added by JS to show the form */
+.form-container.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #00e4f9; /* Teal color */
+}
+
+/* General input group styling */
+.input-group {
+    margin-bottom: 15px;
+}
+
+/* Override for checkbox width */
+.input-group input[type="checkbox"] {
+    width: auto;
+    margin-right: 5px;
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    vertical-align: middle;
+}
+
+label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 5px;
+    color: #b0e0e6; /* Light grayish blue */
+}
+
+input:not([type="checkbox"]),
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #00bcd4; /* Teal border */
+    border-radius: 5px;
+    background: #0a192f; /* Dark background */
+    color: #e0e0e0; /* Light text color */
+    transition: border-color 0.3s, box-shadow 0.3s;
+    font-size: 16px;
+}
+
+/* Placeholder color */
+input::placeholder {
+    color: #737878; /* Grayish placeholder */
+    opacity: 1;
+}
+
+input:focus,
+select:focus {
+    border-color: #00e4f9; /* Brighter teal focus */
+    box-shadow: 0 0 5px rgba(0, 228, 249, 0.8); /* Teal glow */
+    outline: none;
+}
+
+/* General button styling */
+.btn {
+    width: 100%;
+    background: #00bcd4; /* Teal button */
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s;
+    margin-top: 10px;
+}
+
+.btn:hover {
+    background: #00e4f9; /* Brighter teal on hover */
+    box-shadow: 0 0 10px rgba(0, 228, 249, 0.5); /* Teal glow on hover */
+}
+
+.btn:disabled {
+    background: #555;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+
+/* General form link styling */
+.form-link {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+    color: #b0e0e6;
+}
+
+.form-link a {
+    color: #00e4f9; /* Teal link color */
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.form-link a:hover {
+    text-decoration: underline;
+}
+
+/* Specific styling for CAPTCHA container */
+.captcha-container {
+    color: #b0e0e6;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+    background-color: #1a1a1a; /* Dark background for container */
+    border: 1px solid #363636; /* Border matching other inputs loosely */
+    border-radius: 8px; /* Rounded corners */
+    padding: 5px; /* Padding around canvas and button */
+}
+
+.captcha-container canvas {
+     border: 1px solid #00e4f9; /* Teal border for canvas */
+     border-radius: 5px; /* Match input border radius */
+     background-color: #2c3e50; /* Dark blue background for canvas */
+     flex-shrink: 0; /* Prevent canvas from shrinking */
+}
+
+.captcha-container .btn-reload {
+    width: auto;
+    padding: 5px 10px;
+    margin-top: 0; /* Remove default margin-top from .btn */
+    font-size: 14px;
+    background: #2c5364; /* Darker blue background */
+    color: #b0e0e6; /* Light text color */
+    flex-shrink: 0; /* Prevent button from shrinking */
+}
+
+.captcha-container .btn-reload:hover {
+    background: #3a6374;
+    box-shadow: none;
+}
+
+/* Add style for input CAPTCHA in the input-group */
+.input-group .captcha-input {
+    margin-top: 5px; /* Beri jarak dari container canvas/button */
+}
+
+
+/* Specific style for Remember Me (Login) */
+.remember-me {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 10px 0;
+    color: #b0e0e6;
+}
+
+/* Specific style for Agreement Modal (Register) */
+#agreement-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8); /* Darker overlay */
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    padding: 20px;
+}
+
+#agreement-modal > div {
+    background: #1a1a1a; /* Dark background */
+    padding: 30px;
+    border-radius: 15px; /* More rounded */
+    width: 100%;
+    max-width: 600px;
+    color: #e0e0e0;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+}
+
+#agreement-modal h3 {
+    color: #00ffff; /* Teal header */
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#agreement-modal h5 {
+    color: #b0e0e6; /* Light grayish blue sub-header */
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+#agreement-modal p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #ccc; /* Slightly lighter text */
+}
+
+#agreement-modal .btn {
+    /* Close button style */
+    width: auto;
+    padding: 10px 20px;
+    margin-top: 20px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #00ffff; /* Teal button */
+    color: #1a1a1a; /* Dark text */
+}
+#agreement-modal .btn:hover {
+     background-color: #00cccc; /* Darker teal on hover */
+     box-shadow: none; /* Remove glow */
+}
+
+
+/* Style for link "User Agreement" in the label */
+label a#show-agreement-link {
+    color: #00e4f9;
+    text-decoration: underline;
+    font-weight: bold;
+}
+label a#show-agreement-link:hover {
+    text-decoration: none;
+}
+
+/* Style for button "Read User Agreement" */
+button#agreement-btn {
+     background: none;
+     border: none;
+     font-size: 14px;
+     color: #00e4f9;
+     cursor: pointer;
+     padding: 5px 10px;
+     margin: 0;
+     text-align: center;
+     display: inline-block;
+     vertical-align: middle;
+     text-decoration: underline;
+     transition: color 0.3s;
+}
+button#agreement-btn:hover {
+    color: #00cccc;
+    text-decoration: none;
+}
+
+
+/* Style for the div that contains the agreement checkbox and label */
+.input-group.agreement-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.input-group.agreement-checkbox label {
+     display: inline-block;
+     margin-bottom: 0;
+     font-weight: normal;
+     flex-grow: 1;
+     line-height: 1.4;
+     color: #b0e0e6;
+}
+
+/* Alert Messages (Used same class names) */
+.error-message {
+    color: #ff6b6b; /* Reddish */
+    font-size: 14px;
+    margin: 10px 0;
+    text-align: center;
+    background-color: rgba(255, 107, 107, 0.1);
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 107, 107, 0.4);
+}
+
+.success-message {
+    color: #6bff6b; /* Greenish */
+    font-size: 14px;
+    margin: 10px 0;
+    text-align: center;
+    background-color: rgba(107, 255, 107, 0.1);
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(107, 255, 107, 0.4);
+}

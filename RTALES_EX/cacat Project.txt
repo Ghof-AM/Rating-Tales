@@ -1,0 +1,6 @@
+cacat Project
+1) login tidak bisa dilakukan
+2) icon/tombol yang menangani kelola film hilang
+3) trailer tidak bisa dijalankan
+4) gambar profil tidak bisa diganti melalui icon profil
+5) bagian rekomendasi/for you tidak ada yang ditampilkan
