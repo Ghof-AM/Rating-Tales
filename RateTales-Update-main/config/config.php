@@ -1,0 +1,3 @@
+<?php
+define('MAX_UPLOAD_SIZE_POSTER', 5 * 1024 * 1024); // 5MB
+define('MAX_UPLOAD_SIZE_TRAILER', 50 * 1024 * 1024); // 50MB

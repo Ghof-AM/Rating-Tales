@@ -1,0 +1,463 @@
+/* beranda/styles.css */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #1a1a1a; /* Dark background */
+    color: #ffffff; /* White text */
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 250px;
+    background-color: #242424; /* Dark gray sidebar */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 100; /* Ensure sidebar is above content */
+    box-shadow: 2px 0 5px rgba(0,0,0,0.3); /* Subtle shadow */
+}
+
+.logo h2 {
+    color: #00ffff; /* Teal logo color */
+    margin-bottom: 40px;
+    font-size: 24px;
+    text-align: center; /* Center logo */
+}
+
+.nav-links {
+    list-style: none;
+    flex-grow: 1;
+    padding-top: 20px; /* Space below logo */
+}
+
+.nav-links li, .bottom-links li {
+    margin-bottom: 15px; /* Slightly reduced spacing */
+}
+
+.nav-links a, .bottom-links a {
+    color: #ffffff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    padding: 12px 15px; /* Increased padding */
+    border-radius: 8px;
+    transition: background-color 0.3s, color 0.3s;
+    font-size: 15px; /* Slightly smaller font */
+}
+
+.nav-links a:hover, .bottom-links a:hover {
+    background-color: #363636; /* Darker gray on hover */
+    color: #00ffff; /* Teal color on hover */
+}
+
+.nav-links i, .bottom-links i {
+    margin-right: 15px; /* Increased icon spacing */
+    width: 20px;
+    text-align: center; /* Center icons */
+}
+
+.active a {
+    background-color: #363636;
+    color: #00ffff; /* Active color */
+    font-weight: bold;
+}
+.active a i {
+    color: #00ffff; /* Active icon color */
+}
+
+
+.bottom-links {
+    margin-top: auto; /* Push to bottom */
+    list-style: none;
+    padding-top: 20px; /* Space above logout */
+    border-top: 1px solid #363636; /* Separator line */
+}
+
+/* Main Content Styles */
+.main-content {
+    flex-grow: 1;
+    margin-left: 250px; /* Match sidebar width */
+    padding: 20px;
+    max-width: calc(100% - 250px); /* Ensure it doesn't overflow */
+    overflow-x: hidden;
+    overflow-y: auto; /* Enable vertical scrolling */
+    height: 100vh; /* Fill viewport height */
+}
+
+/* Hero Section */
+.hero-section {
+    position: relative;
+    height: 450px; /* Increased height */
+    margin-bottom: 40px;
+    background-color: #242424; /* Placeholder background */
+    border-radius: 15px;
+    overflow: hidden; /* Needed for slide images */
+}
+
+.featured-movie-slider {
+    position: relative;
+    height: 100%;
+}
+
+.slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out; /* Slower transition */
+    background-size: cover; /* Ensure background covers area */
+    background-position: center;
+    display: flex; /* Use flex to center content if needed */
+    align-items: flex-end; /* Align info to bottom */
+    justify-content: flex-start;
+     /* Fallback background if image fails */
+    background-color: #363636;
+}
+
+.slide.active {
+    opacity: 1;
+}
+
+.slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute; /* Position image behind info */
+    top: 0;
+    left: 0;
+    z-index: 1;
+     /* Hide broken image icon */
+    color: transparent;
+    font-size: 0;
+}
+/* Show alt text or a fallback if image fails to load */
+.slide img::before {
+    content: attr(alt);
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #363636;
+    color: #ffffff;
+    text-align: center;
+    padding-top: 50%;
+    font-size: 16px;
+}
+
+
+.movie-info {
+    position: relative; /* Position info above image */
+    z-index: 2;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 40px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.9)); /* Gradient overlay */
+}
+
+.movie-info h1 {
+    font-size: 38px; /* Larger title */
+    margin-bottom: 10px;
+    color: #00ffff; /* Teal title color */
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5); /* Add shadow for readability */
+}
+
+.movie-info p {
+    font-size: 18px;
+    color: #ffffff; /* White text for info */
+}
+
+/* Movie Sections */
+.trending-section, .for-you-section {
+    margin-bottom: 40px;
+    width: 100%;
+    overflow: hidden;
+    max-width: 100%;
+}
+
+.trending-section h2, .for-you-section h2 {
+    margin-bottom: 20px;
+    color: #00ffff; /* Teal headers */
+    font-size: 24px;
+}
+
+/* Scrollable Container (using Flexbox for movie-grid) */
+.scroll-container {
+    width: 100%;
+    overflow-x: auto; /* Enable horizontal scrolling */
+    padding: 10px 0; /* Add padding for scrollbar visibility */
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: #00ffff #2a2a2a; /* Teal thumb, dark track */
+}
+
+.scroll-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+    background: #2a2a2a; /* Dark track */
+    border-radius: 4px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+    background: #00ffff; /* Teal thumb */
+    border-radius: 4px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb:hover {
+    background: #00cccc; /* Darker teal on hover */
+}
+
+/* Movie Grid (Flexbox for horizontal scroll) */
+.movie-grid {
+    display: flex; /* Use flexbox */
+    gap: 20px; /* Gap between cards */
+    padding: 4px 0;
+    white-space: nowrap; /* Prevent wrapping */
+    width: max-content; /* Allow content to define width */
+}
+
+.movie-card {
+    flex: 0 0 200px; /* Do not grow or shrink, fixed width */
+    min-width: 200px;
+    background-color: #242424; /* Dark gray card background */
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s;
+    cursor: pointer;
+    display: inline-block; /* Ensure it respects white-space: nowrap */
+    vertical-align: top; /* Align to top */
+}
+
+.movie-card:hover {
+    transform: translateY(-5px); /* Lift effect on hover */
+}
+
+.movie-card img {
+    width: 100%;
+    height: 300px; /* Fixed height for poster */
+    object-fit: cover;
+     /* Hide broken image icon */
+    color: transparent;
+    font-size: 0;
+}
+/* Show alt text or a fallback if image fails to load */
+.movie-card img::before {
+    content: attr(alt);
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #363636;
+    color: #ffffff;
+    text-align: center;
+    padding-top: 50%;
+    font-size: 16px;
+}
+
+
+.movie-details {
+    padding: 15px;
+}
+
+.movie-details h3 {
+    font-size: 16px;
+    margin-bottom: 5px;
+    white-space: normal; /* Allow title to wrap if needed */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Add ellipsis if title is too long */
+}
+
+.movie-details p {
+    font-size: 14px;
+    color: #888; /* Gray text for meta info */
+    white-space: normal;
+}
+
+/* User Profile in Header */
+.user-profile {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    background-color: #242424; /* Dark gray background */
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    text-decoration: none; /* Remove underline */
+    color: #ffffff; /* White text */
+    z-index: 200; /* Ensure it's above everything */
+    transition: background-color 0.3s;
+}
+
+.user-profile:hover {
+    background-color: #363636; /* Darker gray on hover */
+}
+
+.profile-pic {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover; /* Ensure image covers area */
+    border: 1px solid #00ffff; /* Subtle teal border */
+     /* Hide broken image icon */
+    color: transparent;
+    font-size: 0;
+}
+/* Show alt text or a fallback if image fails to load */
+.profile-pic::before {
+    content: attr(alt);
+    display: block;
+    position: absolute; /* Position relative to .profile-pic */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #363636; /* Fallback background */
+    color: #ffffff;
+    text-align: center;
+    line-height: 30px; /* Vertically center text in 30px height */
+    font-size: 12px;
+}
+
+
+/* Empty state for sections */
+.empty-state {
+    color: #888;
+    text-align: center;
+    padding: 20px;
+}
+
+.empty-state i {
+    font-size: 2em;
+    color: #666;
+    margin-bottom: 10px;
+}
+.empty-state .subtitle a {
+     color: #00ffff;
+     text-decoration: none;
+     font-weight: bold;
+}
+.empty-state .subtitle a:hover {
+     text-decoration: underline;
+}
+
+/* Scrollbar Styles */
+.main-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.main-content::-webkit-scrollbar-track {
+    background: #242424;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+    background: #363636;
+    border-radius: 4px;
+}
+
+.main-content::-webkit-scrollbar-thumb:hover {
+    background: #00ffff;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 70px;
+        padding: 10px;
+    }
+
+    .logo h2, .nav-links span, .bottom-links span {
+        display: none;
+    }
+
+    .nav-links i, .bottom-links i {
+        margin-right: 0;
+        width: 100%; /* Icons take full width of narrow sidebar */
+        text-align: center;
+    }
+
+     .nav-links a, .bottom-links a {
+         justify-content: center; /* Center content in links */
+         padding: 10px 0; /* Adjust padding */
+     }
+
+    .main-content {
+        margin-left: 70px;
+         padding: 10px; /* Reduced main content padding */
+    }
+
+    .movie-card {
+        flex: 0 0 150px; /* Smaller movie cards */
+        min-width: 150px;
+    }
+
+    .movie-card img {
+        height: 225px; /* Maintain 2:3 aspect ratio */
+    }
+
+    .hero-section {
+        height: 300px;
+        margin-bottom: 20px;
+    }
+
+     .slide img::before, .movie-card img::before {
+         font-size: 14px; /* Smaller fallback text */
+     }
+
+
+    .movie-info {
+        padding: 20px; /* Reduced info padding */
+    }
+
+    .movie-info h1 {
+        font-size: 24px;
+    }
+     .movie-info p {
+         font-size: 16px;
+     }
+
+    .trending-section, .for-you-section {
+        margin-bottom: 30px;
+    }
+
+    .trending-section h2, .for-you-section h2 {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+
+     .user-profile {
+         top: 10px; /* Adjust position */
+         right: 10px;
+         padding: 5px 10px;
+     }
+     .user-profile span {
+         display: none; /* Hide username */
+     }
+      .user-profile .profile-pic {
+          margin-right: 0; /* Remove margin */
+      }
+}

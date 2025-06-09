@@ -1,0 +1,512 @@
+/* acc_page/styles.css */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #1a1a1a;
+    color: #ffffff;
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar Styles (Copy from beranda/styles.css for consistency) */
+.sidebar {
+    width: 250px;
+    background-color: #242424;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+}
+
+.logo h2 {
+    color: #00ffff;
+    margin-bottom: 40px;
+    font-size: 24px;
+     text-align: center;
+}
+
+.nav-links {
+    list-style: none;
+    flex-grow: 1;
+     padding-top: 20px;
+}
+
+.nav-links li, .bottom-links li {
+    margin-bottom: 15px;
+}
+
+.nav-links a, .bottom-links a {
+    color: #ffffff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border-radius: 8px;
+    transition: background-color 0.3s, color 0.3s;
+    font-size: 15px;
+}
+
+.nav-links a:hover, .bottom-links a:hover {
+    background-color: #363636;
+    color: #00ffff;
+}
+
+.nav-links i, .bottom-links i {
+    margin-right: 15px;
+    width: 20px;
+     text-align: center;
+}
+
+.active a {
+    background-color: #363636;
+    color: #00ffff;
+    font-weight: bold;
+}
+.active a i {
+    color: #00ffff;
+}
+
+
+.bottom-links {
+    margin-top: auto;
+    list-style: none;
+    padding-top: 20px;
+    border-top: 1px solid #363636;
+}
+
+
+/* Main Content Styles */
+.main-content {
+    flex-grow: 1;
+    margin-left: 250px;
+    padding: 20px;
+    max-height: 100vh;
+    overflow-y: auto;
+}
+
+/* Profile Header Styles */
+.profile-header {
+    background-color: #242424;
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+.profile-info {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.profile-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #00ffff;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+    flex-shrink: 0;
+    position: relative;
+    background-color: #363636;
+}
+
+.profile-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    color: transparent;
+    font-size: 0;
+    transition: filter 0.3s ease;
+}
+
+.profile-image:hover img {
+    filter: brightness(70%);
+}
+
+.profile-image .edit-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.profile-image:hover .edit-icon {
+    opacity: 1;
+}
+
+.profile-image .edit-icon i {
+    font-size: 1.2em;
+}
+/* Show alt text or a fallback if image fails to load */
+.profile-image img::before {
+    content: attr(alt);
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #363636;
+    color: #ffffff;
+    text-align: center;
+    line-height: 120px;
+    font-size: 18px;
+}
+
+
+.profile-details {
+     flex-grow: 1;
+     min-width: 200px;
+}
+
+.profile-details h1 {
+    font-size: 32px;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+     color: #00ffff;
+}
+
+.edit-icon {
+    font-size: 18px;
+    color: #00ffff;
+    cursor: pointer;
+    transition: color 0.3s, transform 0.2s;
+    margin-left: 5px;
+    opacity: 0.8;
+}
+
+.edit-icon:hover {
+    color: #00cccc;
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Styles for the edit state (textarea/input) */
+.edit-input {
+    background-color: #363636;
+    border: 1px solid #00ffff;
+    border-radius: 4px;
+    color: #ffffff;
+    padding: 8px 12px;
+    font-size: inherit;
+    width: auto;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.edit-input:focus {
+    border-color: #00cccc;
+    box-shadow: 0 0 0 2px rgba(0, 255, 255, 0.2);
+}
+
+.bio-input {
+    width: 100% !important;
+    min-height: 100px;
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.bio-input::placeholder {
+    color: #666666;
+    font-style: italic;
+}
+
+/* Style for the display bio area */
+#bio {
+    cursor: pointer;
+    transition: background-color 0.3s;
+     padding: 10px;
+     border-radius: 8px;
+     line-height: 1.6;
+     color: #ccc;
+     white-space: pre-wrap; /* Preserve line breaks */
+}
+
+#bio:hover {
+    background-color: #2a2a2a;
+}
+
+.username {
+    color: #888;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.about-me {
+    background-color: #1a1a1a;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.about-me h2 {
+    color: #00ffff;
+    margin-bottom: 15px;
+    font-size: 20px;
+     border-bottom: 1px solid #333;
+     padding-bottom: 10px;
+}
+
+.about-content {
+    min-height: 100px;
+    background-color: #242424;
+    border-radius: 8px;
+    padding: 15px;
+     white-space: pre-wrap; /* Preserve line breaks */
+}
+
+/* Posts Section Styles */
+.posts-section {
+    padding: 20px 0;
+}
+
+.posts-section h2 {
+    color: #00ffff;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+/* Movies Grid Styles (Uses .review-grid from review/styles.css now) */
+/* .posts-grid { ... removed ... } */
+
+/* Post Card Styles (Uses .movie-card etc. from review/styles.css now) */
+/* .post-card { ... removed ... } */
+
+/* Empty State Styles (Copy from favorite/styles.css) */
+.empty-state {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    text-align: center;
+    background-color: #242424;
+    border-radius: 15px;
+    margin: 20px 0;
+     color: #ffffff;
+}
+
+.empty-state i {
+    font-size: 4em;
+    color: #00ffff;
+    margin-bottom: 20px;
+}
+
+.empty-state p {
+    margin: 5px 0;
+    font-size: 1.2em;
+}
+
+.empty-state .subtitle {
+    color: #666;
+    font-size: 0.9em;
+}
+.empty-state .subtitle a {
+     color: #00ffff;
+     text-decoration: none;
+     font-weight: bold;
+}
+.empty-state .subtitle a:hover {
+     text-decoration: underline;
+}
+
+
+.empty-state.full-width {
+    width: 100%;
+    margin: 0;
+     min-height: 300px;
+}
+
+
+/* Scrollbar Styles (Copy from beranda/styles.css) */
+.main-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.main-content::-webkit-scrollbar-track {
+    background: #242424;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+    background: #363636;
+    border-radius: 4px;
+}
+
+.main-content::-webkit-scrollbar-thumb:hover {
+    background: #00ffff;
+}
+
+/* Alert Messages (Copy from favorite/styles.css) */
+.alert {
+    padding: 10px 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.alert.success {
+    background-color: #00ff0033;
+    color: #00ff00;
+    border: 1px solid #00ff0088;
+}
+
+.alert.error {
+    background-color: #ff000033;
+    color: #ff0000;
+    border: 1px solid #ff000088;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 70px;
+        padding: 10px;
+    }
+
+    .logo h2, .nav-links span, .bottom-links span {
+        display: none;
+    }
+
+    .nav-links i, .bottom-links i {
+        margin-right: 0;
+        width: 100%;
+        text-align: center;
+    }
+
+     .nav-links a, .bottom-links a {
+         justify-content: center;
+         padding: 10px 0;
+     }
+
+    .main-content {
+        margin-left: 70px;
+         padding: 10px;
+    }
+
+    .profile-header {
+        padding: 20px;
+    }
+
+    .profile-info {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+     .profile-image {
+         width: 100px;
+         height: 100px;
+     }
+     .profile-image img::before {
+          line-height: 100px;
+          font-size: 16px;
+     }
+
+    .profile-details {
+        text-align: center;
+        min-width: unset;
+        width: 100%;
+    }
+     .profile-details h1 {
+         justify-content: center;
+         font-size: 24px;
+     }
+     .username {
+         font-size: 14px;
+     }
+     .user-meta {
+         font-size: 12px;
+     }
+
+    .about-me {
+        padding: 15px;
+    }
+    .about-me h2 {
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+     .about-content {
+         padding: 10px;
+         min-height: 80px;
+     }
+
+    .posts-section {
+        padding: 10px 0;
+    }
+    .posts-section h2 {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+     .movies-grid.review-grid {
+         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+         gap: 10px;
+     }
+     .movie-card {
+         flex: 0 0 auto;
+         min-width: unset;
+     }
+     .movie-card img {
+         height: 225px;
+     }
+     .movie-poster img::before {
+         font-size: 14px;
+     }
+      .movie-details {
+         padding: 10px;
+     }
+      .movie-details h3 {
+          font-size: 14px;
+      }
+      .movie-info {
+          font-size: 12px;
+      }
+      .rating {
+          font-size: 0.9em;
+          gap: 5px;
+      }
+      .rating-count {
+          font-size: 12px;
+      }
+
+      .empty-state.full-width {
+         padding: 20px;
+         min-height: 200px;
+     }
+      .empty-state i {
+          font-size: 3em;
+      }
+      .empty-state p {
+          font-size: 1em;
+      }
+      .empty-state .subtitle {
+          font-size: 0.8em;
+      }
+
+
+ }
