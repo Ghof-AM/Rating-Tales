@@ -60,7 +60,7 @@ body {
 }
 
 .nav-links a:hover, .bottom-links a:hover {
-    background-color: #363636; /* Darker gray on hover */
+    background-color: #363636;
     color: #00ffff; /* Teal color on hover */
 }
 

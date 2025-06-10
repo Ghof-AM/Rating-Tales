@@ -29,6 +29,9 @@ body {
     transform: translateY(-50px); /* Initial state for JS animation */
     transition: opacity 1s ease-in-out, transform 1s ease-in-out; /* Animation */
     position: relative; /* Needed for Google button positioning if it becomes absolute */
+    display: flex; /* Use flex for internal layout */
+    flex-direction: column; /* Stack content */
+    gap: 15px; /* Space between elements */
 }
 
 /* Class added by JS to show the form */
@@ -40,13 +43,13 @@ body {
 
 h2 {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 5px; /* Adjust margin due to form container gap */
     color: #00e4f9; /* Teal color */
 }
 
 /* General input group styling */
 .input-group {
-    margin-bottom: 15px;
+    margin-bottom: 0; /* Adjust margin due to form container gap */
 }
 
 /* Override for checkbox width */
@@ -102,7 +105,7 @@ select:focus {
     font-size: 16px;
     cursor: pointer;
     transition: background 0.3s, box-shadow 0.3s;
-    margin-top: 10px;
+    margin-top: 0; /* Adjust margin due to form container gap */
 }
 
 .btn:hover {
@@ -120,7 +123,7 @@ select:focus {
 /* General form link styling */
 .form-link {
     text-align: center;
-    margin-top: 15px;
+    margin-top: 0; /* Adjust margin due to form container gap */
     font-size: 14px;
     color: #b0e0e6;
 }
@@ -134,6 +137,23 @@ select:focus {
 .form-link a:hover {
     text-decoration: underline;
 }
+
+/* Separator for OR */
+.form-link.separator {
+    display: block;
+    width: 100%;
+    text-align: center;
+    border-bottom: 1px solid #363636;
+    line-height: 0.1em;
+    margin: 10px 0 20px; /* Adjust spacing */
+    color: #888;
+    font-size: 12px;
+}
+.form-link.separator span {
+    background:#2c5364;
+    padding:0 10px;
+}
+
 
 /* Specific styling for CAPTCHA container */
 .captcha-container {
@@ -284,7 +304,8 @@ button#agreement-btn:hover {
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 0; /* Adjust margin due to form container gap */
+    margin-top: 10px; /* Add some space after agreement button */
 }
 .input-group.agreement-checkbox label {
      display: inline-block;
@@ -299,7 +320,7 @@ button#agreement-btn:hover {
 .error-message {
     color: #ff6b6b; /* Reddish */
     font-size: 14px;
-    margin: 10px 0;
+    margin: 10px 0; /* Keep some margin for alerts */
     text-align: center;
     background-color: rgba(255, 107, 107, 0.1);
     padding: 8px;
@@ -310,10 +331,22 @@ button#agreement-btn:hover {
 .success-message {
     color: #6bff6b; /* Greenish */
     font-size: 14px;
-    margin: 10px 0;
+    margin: 10px 0; /* Keep some margin for alerts */
     text-align: center;
     background-color: rgba(107, 255, 107, 0.1);
     padding: 8px;
     border-radius: 4px;
     border: 1px solid rgba(107, 255, 107, 0.4);
 }
+
+/* Google Sign-In Container */
+.google-signin-container {
+     display: flex;
+     justify-content: center;
+     margin-top: 10px;
+     margin-bottom: 10px;
+}
+
+/* Specific Google Button styles (if needed, though Google GSI handles most) */
+/* You might override padding or margin here if the default doesn't fit */
+

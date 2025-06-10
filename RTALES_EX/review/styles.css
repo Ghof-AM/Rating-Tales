@@ -177,6 +177,7 @@ body {
     cursor: pointer;
      /* Fallback background if image fails */
     background-color: #363636;
+     position: relative; /* Needed for ::before */
 }
 
 .movie-poster img {
@@ -189,6 +190,7 @@ body {
      /* Hide broken image icon */
     color: transparent;
     font-size: 0;
+     display: block; /* Remove extra space below image */
 }
 /* Show alt text or a fallback if image fails to load */
 .movie-poster img::before {
@@ -204,6 +206,7 @@ body {
     text-align: center;
     padding-top: 50%;
     font-size: 16px;
+    line-height: 1.5; /* Improve vertical alignment */
 }
 
 

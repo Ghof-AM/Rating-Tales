@@ -69,7 +69,7 @@ $for_you_movies = array_slice($movies, 1, 10); // A different slice for variety 
                          <div class="slide active empty-state" style="position:relative; opacity:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; height: 100%;">
                              <i class="fas fa-film" style="font-size: 3em; color:#00ffff; margin-bottom:15px;"></i>
                              <p style="color: #fff; font-size:1.2em;">No featured movies available yet.</p>
-                              <?php if($user): ?>
+                              <?php if(isAuthenticated()): // Use isAuthenticated ?>
                               <p class="subtitle" style="color: #888; margin-top:10px;">Upload movies in the <a href="../manage/indeks.php" style="color:#00ffff; text-decoration:none;">Manage</a> section.</p>
                               <?php endif; ?>
                          </div>
@@ -121,7 +121,7 @@ $for_you_movies = array_slice($movies, 1, 10); // A different slice for variety 
                 </div>
             </section>
         </main>
-         <?php if ($user): ?>
+         <?php if (isAuthenticated()): // Use isAuthenticated ?>
              <a href="../acc_page/index.php" class="user-profile">
                  <img src="<?php echo htmlspecialchars($user['profile_image'] ?? 'https://ui-avatars.com/api/?name=' . urlencode($user['full_name'] ?? $user['username']) . '&background=random&color=fff&size=30'); ?>" alt="User Profile" class="profile-pic">
                  <span><?php echo htmlspecialchars($user['full_name'] ?? $user['username']); ?></span>

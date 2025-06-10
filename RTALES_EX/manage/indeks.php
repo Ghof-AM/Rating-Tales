@@ -8,57 +8,56 @@ redirectIfNotAuthenticated();
 // Get authenticated user ID
 $userId = $_SESSION['user_id'];
 
-// Fetch movies uploaded by the current user
-$movies = getUserUploadedMovies($userId);
-
 // Handle delete movie action
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_movie_id'])) {
     $movieIdToDelete = filter_var($_POST['delete_movie_id'], FILTER_VALIDATE_INT);
 
     if ($movieIdToDelete) {
         try {
-            $pdo->beginTransaction();
+            // Fetch movie details BEFORE deleting to get file paths
+            $movieToDelete = getMovieById($movieIdToDelete);
 
-            // IMPORTANT: Due to ON DELETE CASCADE in the schema, deleting the movie
-            // from the 'movies' table will automatically delete associated rows
-            // in 'movie_genres', 'reviews', and 'favorites'.
+            // Ensure the movie exists and is uploaded by the current user
+            if ($movieToDelete && $movieToDelete['uploaded_by'] == $userId) {
 
-            // Prepare and execute the delete statement for the movie table
-            // Ensure only the uploader can delete their movie
-            $stmt = $pdo->prepare("DELETE FROM movies WHERE movie_id = ? AND uploaded_by = ?");
-            $stmt->execute([$movieIdToDelete, $userId]);
+                $pdo->beginTransaction();
 
-            // Check if a row was actually deleted
-            if ($stmt->rowCount() > 0) {
-                 // Optional: Delete associated files (poster, trailer) from the server
-                 // This is more complex as you need the file paths BEFORE deleting the DB record.
-                 // To do this safely, you would fetch the movie first, get the paths, then start transaction,
-                 // delete DB record, commit, then delete files.
-                 // For simplicity here, file deletion is omitted, but consider adding it.
-                 // Example (requires fetching movie before deletion):
-                 /*
-                 $old_movie = getMovieById($movieIdToDelete); // Fetch BEFORE delete
-                 if ($old_movie) {
-                      if (!empty($old_movie['poster_image']) && file_exists(UPLOAD_DIR_POSTERS . $old_movie['poster_image'])) {
-                          unlink(UPLOAD_DIR_POSTERS . $old_movie['poster_image']);
-                      }
-                      if (!empty($old_movie['trailer_file']) && file_exists(UPLOAD_DIR_TRAILERS . $old_movie['trailer_file'])) {
-                           unlink(UPLOAD_DIR_TRAILERS . $old_movie['trailer_file']);
-                      }
-                 }
-                 */
+                // IMPORTANT: Due to ON DELETE CASCADE in the schema, deleting the movie
+                // from the 'movies' table will automatically delete associated rows
+                // in 'movie_genres', 'reviews', and 'favorites'.
+
+                // Prepare and execute the delete statement for the movie table
+                $stmt = $pdo->prepare("DELETE FROM movies WHERE movie_id = ?");
+                $stmt->execute([$movieIdToDelete]);
 
                 $pdo->commit();
-                $_SESSION['success_message'] = 'Movie deleted successfully.';
+
+                // Delete associated files (poster, trailer) from the server AFTER successful DB deletion
+                if (!empty($movieToDelete['poster_image'])) {
+                     $poster_path = UPLOAD_DIR_POSTERS . $movieToDelete['poster_image'];
+                     if (file_exists($poster_path)) {
+                         @unlink($poster_path); // Use @ to suppress errors
+                     }
+                }
+                if (!empty($movieToDelete['trailer_file'])) {
+                    $trailer_path = UPLOAD_DIR_TRAILERS . $movieToDelete['trailer_file'];
+                    if (file_exists($trailer_path)) {
+                         @unlink($trailer_path); // Use @ to suppress errors
+                    }
+                }
+
+
+                $_SESSION['success_message'] = 'Movie deleted successfully!';
             } else {
                  // Movie not found OR not uploaded by the current user
-                $pdo->rollBack();
                 $_SESSION['error_message'] = 'Movie not found or you do not have permission to delete it.';
             }
 
         } catch (PDOException $e) {
-            $pdo->rollBack();
-            error_log("Database error during movie deletion: " . $e->getMessage());
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            error_log("Database error during movie deletion (ID: {$movieIdToDelete}, User: {$userId}): " . $e->getMessage());
             $_SESSION['error_message'] = 'An internal error occurred while deleting the movie.';
         }
     } else {
@@ -69,6 +68,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_movie_id'])) {
     exit;
 }
 
+
+// Fetch movies uploaded by the current user (after potential deletion)
+$movies = getUserUploadedMovies($userId);
 
 // Get messages from session
 $success_message = isset($_SESSION['success_message']) ? $_SESSION['success_message'] : null;
@@ -136,14 +138,14 @@ unset($_SESSION['error_message']);
                 <?php else: ?>
                      <?php foreach ($movies as $movie): ?>
                         <div class="movie-card">
-                            <div class="movie-poster">
+                            <div class="movie-poster" onclick="window.location.href='../review/movie-details.php?id=<?php echo $movie['movie_id']; ?>'"> <!-- Make poster clickable -->
                                 <img src="<?php echo htmlspecialchars(WEB_UPLOAD_DIR_POSTERS . $movie['poster_image'] ?? '../gambar/placeholder.jpg'); ?>" alt="<?php echo htmlspecialchars($movie['title']); ?>">
                                 <div class="movie-actions">
-                                     <!-- Edit Button (Link to edit page - create edit.php if needed) -->
-                                     <!-- <a href="edit.php?id=<?php echo $movie['movie_id']; ?>" class="action-btn" title="Edit Movie">
-                                         <i class="fas fa-edit"></i>
-                                     </a> -->
-                                     <!-- Delete Button (Form submission) -->
+                                     <!-- Edit Button -->
+                                     <a href="edit.php?id=<?php echo $movie['movie_id']; ?>" class="action-btn" title="Edit Movie">
+                                         <i class="fas fa-pen"></i>
+                                     </a>
+                                     <!-- Delete Button -->
                                      <form action="indeks.php" method="POST" onsubmit="return confirm('Are you sure you want to delete the movie &quot;<?php echo htmlspecialchars($movie['title']); ?>&quot;? This action cannot be undone.');">
                                          <input type="hidden" name="delete_movie_id" value="<?php echo $movie['movie_id']; ?>">
                                          <button type="submit" class="action-btn" title="Delete Movie"><i class="fas fa-trash"></i></button>
@@ -214,25 +216,25 @@ unset($_SESSION['error_message']);
                 });
 
                 // Handle empty state visibility
-                const searchEmptyState = document.querySelector('.search-empty-state');
+                let searchEmptyState = document.querySelector('.search-empty-state'); // Re-select
 
                 if (visibleCardCount === 0 && searchTerm !== '') {
                     if (!searchEmptyState) {
                          // Hide the initial empty state if it exists and we are searching
                         if(initialEmptyState) initialEmptyState.style.display = 'none';
 
-                        const emptyState = document.createElement('div');
-                        emptyState.className = 'empty-state search-empty-state full-width';
-                        emptyState.innerHTML = `
+                        searchEmptyState = document.createElement('div'); // Create if not exists
+                        searchEmptyState.className = 'empty-state search-empty-state full-width';
+                        searchEmptyState.innerHTML = `
                             <i class="fas fa-search"></i>
                             <p>No uploaded movies found matching "${htmlspecialchars(searchTerm)}"</p>
                             <p class="subtitle">Try a different search term</p>
                         `;
-                        moviesGrid.appendChild(emptyState);
+                        moviesGrid.appendChild(searchEmptyState);
                     } else {
                          // Update text if search empty state already exists
                          searchEmptyState.querySelector('p:first-of-type').innerText = `No uploaded movies found matching "${htmlspecialchars(searchTerm)}"`;
-                         searchEmptyState.style.display = 'flex';
+                         searchEmptyState.style.display = 'flex'; // Ensure it's displayed
                     }
                 } else {
                     // Remove search empty state if cards are visible or search is cleared
@@ -258,11 +260,10 @@ unset($_SESSION['error_message']);
          // Helper function for HTML escaping (client-side)
          function htmlspecialchars(str) {
              if (typeof str !== 'string') return str;
-             return str.replace(/&/g, '&amp;')
-                       .replace(/</g, '&lt;')
-                       .replace(/>/g, '&gt;') // Keep > as is for HTML structure, but usually encode
-                       .replace(/"/g, '&quot;')
-                       .replace(/'/g, '&#039;');
+             // Create a temporary DOM element to leverage browser's escaping
+             const div = document.createElement('div');
+             div.appendChild(document.createTextNode(str));
+             return div.innerHTML;
          }
     </script>
 </body>

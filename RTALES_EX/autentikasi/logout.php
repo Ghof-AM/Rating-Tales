@@ -7,8 +7,12 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Unset all session variables
-$_SESSION = array();
+// Unset specific user-related session variables
+unset($_SESSION['user_id']);
+unset($_SESSION['google_login']); // Unset google login marker
+
+// Optionally clear all session variables (might affect other non-user session data)
+// $_SESSION = array();
 
 // Delete the session cookie (if one exists)
 if (ini_get("session.use_cookies")) {

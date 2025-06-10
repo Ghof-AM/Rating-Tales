@@ -1,16 +1,15 @@
 <?php
 // autentikasi/form-register.php
-require_once '../includes/config.php'; // Include config.php
+require_once '../includes/config.php'; // Include config.php and database functions
 
 // Redirect if already authenticated
 if (isAuthenticated()) {
     header('Location: ../beranda/index.php');
     exit;
 }
-
 // --- Logika generate CAPTCHA (Server-side) ---
 // Generate CAPTCHA new if not set or needed after POST error
-if (!isset($_SESSION['captcha_code']) || ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['error']))) {
+if (!isset($_SESSION['captcha_code']) || isset($_SESSION['error_message'])) {
      $_SESSION['captcha_code'] = generateRandomString(6);
 }
 
@@ -18,23 +17,31 @@ if (!isset($_SESSION['captcha_code']) || ($_SERVER['REQUEST_METHOD'] === 'POST' 
 $error_message = null;
 $success_message = null;
 
-// Retrieve input values from session if redirected back due to error (optional but improves UX)
+// Retrieve input values from session if redirected back due to error (improves UX)
 // Note: Password fields are NOT pre-filled for security
 $full_name = $_SESSION['register_full_name'] ?? '';
 $username = $_SESSION['register_username'] ?? '';
 $age_input = $_SESSION['register_age'] ?? '';
 $gender = $_SESSION['register_gender'] ?? '';
 $email = $_SESSION['register_email'] ?? '';
-$captcha_input = $_SESSION['register_captcha_input'] ?? ''; // Note: CAPTCHA should be re-entered
 $agree = $_SESSION['register_agree'] ?? false;
 
-// Clear stored inputs from session (except maybe for debugging)
+// Get messages from session and clear them
+if (isset($_SESSION['error_message'])) {
+    $error_message = $_SESSION['error_message'];
+    unset($_SESSION['error_message']);
+}
+if (isset($_SESSION['success_message'])) {
+    $success_message = $_SESSION['success_message'];
+    unset($_SESSION['success_message']);
+}
+
+// Clear stored inputs from session AFTER retrieving messages
 unset($_SESSION['register_full_name']);
 unset($_SESSION['register_username']);
 unset($_SESSION['register_age']);
 unset($_SESSION['register_gender']);
 unset($_SESSION['register_email']);
-unset($_SESSION['register_captcha_input']);
 unset($_SESSION['register_agree']);
 
 
@@ -56,7 +63,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
      $_SESSION['register_age'] = $age_input_post;
      $_SESSION['register_gender'] = $gender_post;
      $_SESSION['register_email'] = $email_post;
-     $_SESSION['register_captcha_input'] = $captcha_input_post; // Cleared on page load, but available briefly
      $_SESSION['register_agree'] = $agree_post;
 
 
@@ -102,25 +108,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // }
 
 
-    // --- Validasi CAPTCHA (Server-side) - This is the crucial security check ---
-    if (!isset($_SESSION['captcha_code']) || strtolower($captcha_input_post) !== strtolower($_SESSION['captcha_code'])) {
-        $errors[] = 'Invalid CAPTCHA.';
-        // Regenerate CAPTCHA immediately on CAPTCHA failure
-        $_SESSION['captcha_code'] = generateRandomString(6);
-        // Do NOT unset CAPTCHA here if it's invalid
-    } else {
-        // CAPTCHA valid, unset it immediately to prevent reuse
-        unset($_SESSION['captcha_code']);
+    // --- Validasi CAPTCHA (Server-side) ---
+    // Check CAPTCHA only if other required fields are present
+    if (empty($errors)) {
+         if (!isset($_SESSION['captcha_code']) || strtolower($captcha_input_post) !== strtolower($_SESSION['captcha_code'])) {
+             $errors[] = 'Invalid CAPTCHA.';
+             // CAPTCHA is regenerated at the top of the file if there are errors
+         } else {
+             // CAPTCHA valid, unset it immediately to prevent reuse
+             unset($_SESSION['captcha_code']);
+         }
     }
 
 
     // If there are validation errors, store them in session and redirect
     if (!empty($errors)) {
-        $_SESSION['error'] = implode('<br>', $errors);
-        // Ensure CAPTCHA is regenerated if it wasn't already due to CAPTCHA failure
-        if (!isset($_SESSION['captcha_code'])) { // Cek again if it wasn't regenerated already
-             $_SESSION['captcha_code'] = generateRandomString(6);
-        }
+        $_SESSION['error_message'] = implode('<br>', $errors);
         header('Location: form-register.php');
         exit;
     }
@@ -129,28 +132,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Check if username or email already exists
     try {
-        $stmt_check = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ? OR email = ? LIMIT 1"); // Use LIMIT 1
-        $stmt_check->execute([$username_post, $email_post]);
-        if ($stmt_check->fetchColumn() > 0) {
-            $_SESSION['error'] = 'Username or email is already registered.';
-             // Regenerate CAPTCHA on database check failure
-            $_SESSION['captcha_code'] = generateRandomString(6);
+        // Use the refactored function from database.php
+        if (isUsernameOrEmailExists($username_post, $email_post)) {
+            $_SESSION['error_message'] = 'Username or email is already registered.';
+             // CAPTCHA is regenerated at the top of the file if there are errors
             header('Location: form-register.php');
             exit;
         }
 
-        // Hash password
-        $hashed_password = password_hash($password_post, PASSWORD_BCRYPT);
-
-        // Save new user to database using the createUser function from config/database.php
+        // Save new user to database using the createUser function
+        // Password hashing is now handled inside createUser
         $inserted = createUser(
             $full_name_post,
             $username_post,
             $email_post,
-            $hashed_password,
+            $password_post, // Pass raw password, function will hash it
             $age, // Use the validated integer age
             $gender_post
-            // profile_image and bio are null by default in createUser function
+            // profile_image, bio, google_id are null by default or not provided here
         );
 
 
@@ -162,7 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Regenerate session ID after successful registration
             session_regenerate_id(true);
 
-            $_SESSION['success'] = 'Registration successful! Welcome, ' . htmlspecialchars($username_post) . '!';
+            $_SESSION['success_message'] = 'Registration successful! Welcome, ' . htmlspecialchars($username_post) . '!';
 
             // Redirect to intended URL if set, otherwise to beranda
             $redirect_url = '../beranda/index.php';
@@ -175,10 +174,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         } else {
              // This else block might be hit if execute returns false for other reasons
-            $_SESSION['error'] = 'Failed to create user account.';
-            if (!isset($_SESSION['captcha_code'])) {
-                $_SESSION['captcha_code'] = generateRandomString(6);
-            }
+            $_SESSION['error_message'] = 'Failed to create user account.';
+             // CAPTCHA is regenerated at the top of the file if there are errors
             header('Location: form-register.php');
             exit;
         }
@@ -186,24 +183,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } catch (PDOException $e) {
         error_log("Database error during registration: " . $e->getMessage());
-        $_SESSION['error'] = 'An internal error occurred during registration. Please try again.';
-         if (!isset($_SESSION['captcha_code'])) {
-             $_SESSION['captcha_code'] = generateRandomString(6);
-         }
+        $_SESSION['error_message'] = 'An internal error occurred during registration. Please try again.';
+         // CAPTCHA is regenerated at the top of the file if there are errors
         header('Location: form-register.php');
         exit;
     }
 }
 
-// Get messages from session
-if (isset($_SESSION['error'])) {
-    $error_message = $_SESSION['error'];
-    unset($_SESSION['error']);
-}
-if (isset($_SESSION['success'])) {
-    $success_message = $_SESSION['success'];
-    unset($_SESSION['success']);
-}
 
 // Get CAPTCHA code from session for client-side drawing
 $captchaCodeForClient = $_SESSION['captcha_code'] ?? '';
@@ -218,6 +204,8 @@ $captchaCodeForClient = $_SESSION['captcha_code'] ?? '';
     <link rel="stylesheet" href="style.css">
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <title>Rate Tales - Register</title>
+    <!-- Google Sign-In -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
     <div class="form-container register-form">
@@ -274,7 +262,6 @@ $captchaCodeForClient = $_SESSION['captcha_code'] ?? '';
                     <button type="button" onclick="generateCaptcha()" class="btn-reload" title="Reload CAPTCHA"><i class="fas fa-sync-alt"></i></button>
                  </div>
                  <input type="text" name="captcha_input" id="captchaInput" placeholder="Enter CAPTCHA" required autocomplete="off"> <!-- Value is NOT pre-filled for security -->
-                 <p id="captchaMessage" class="error-message" style="display:none;"></p>
             </div>
 
             <div style="text-align: center; margin-bottom: 10px; margin-top: 20px;">
@@ -288,6 +275,28 @@ $captchaCodeForClient = $_SESSION['captcha_code'] ?? '';
 
             <button type="submit" class="btn" id="register-submit-btn" disabled>Register</button> <!-- Disabled by default -->
         </form>
+
+         <div class="form-link separator">OR</div>
+
+        <!-- Google Sign-In Button -->
+         <div class="google-signin-container">
+             <!-- The following div is provided by Google Identity Services -->
+             <div id="g_id_onload"
+                  data-client_id="<?php echo GOOGLE_CLIENT_ID; ?>"
+                  data-callback="handleCredentialResponse"
+                  data-auto_prompt="false">
+             </div>
+             <div class="g_id_signin"
+                  data-type="standard"
+                  data-size="large"
+                  data-theme="filled_blue"
+                  data-text="signup_with"
+                  data-shape="rectangular"
+                  data-logo_alignment="left">
+             </div>
+         </div>
+
+
         <p class="form-link">Already have an account? <a href="form-login.php">Login here</a></p>
     </div>
 
@@ -315,8 +324,9 @@ $captchaCodeForClient = $_SESSION['captcha_code'] ?? '';
         let currentCaptchaCode = "<?php echo htmlspecialchars($captchaCodeForClient); ?>";
 
         const captchaInput = document.getElementById('captchaInput');
-        const captchaMessage = document.getElementById('captchaMessage');
         const captchaCanvas = document.getElementById('captchaCanvas');
+        const agreeCheckbox = document.getElementById('agree-checkbox');
+        const registerSubmitBtn = document.getElementById('register-submit-btn');
 
 
         function drawCaptcha(code) {
@@ -368,12 +378,9 @@ $captchaCodeForClient = $_SESSION['captcha_code'] ?? '';
                 currentCaptchaCode = newCaptchaCode;
                 drawCaptcha(currentCaptchaCode);
                 captchaInput.value = '';
-                captchaMessage.style.display = 'none';
             } catch (error) {
                 console.error("Error generating CAPTCHA:", error);
-                captchaMessage.innerText = 'Failed to load CAPTCHA. Try again.';
-                captchaMessage.style.color = 'red';
-                captchaMessage.style.display = 'block';
+                // Optionally display an error message on the page
             }
         }
 
@@ -382,8 +389,6 @@ $captchaCodeForClient = $_SESSION['captcha_code'] ?? '';
             drawCaptcha(currentCaptchaCode);
 
              // Set initial state of the Register button based on the agreement checkbox
-             const agreeCheckbox = document.getElementById('agree-checkbox');
-             const registerSubmitBtn = document.getElementById('register-submit-btn');
              if(registerSubmitBtn && agreeCheckbox) {
                  registerSubmitBtn.disabled = !agreeCheckbox.checked;
              }
@@ -397,46 +402,26 @@ $captchaCodeForClient = $_SESSION['captcha_code'] ?? '';
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirm-password').value;
             const agreeCheckbox = document.getElementById('agree-checkbox');
+            const captchaInput = document.getElementById('captchaInput').value; // Get current input value
 
-            // Clear previous client-side messages
-            const feedbackElement = document.getElementById('captchaMessage'); // Use this element for feedback
-            if (feedbackElement) {
-                 feedbackElement.style.display = 'none';
-                 feedbackElement.innerText = '';
-                 feedbackElement.style.color = 'red'; // Reset color
-            }
-
-
+            // Basic password match check
             if (password !== confirmPassword) {
-                 if (feedbackElement) {
-                     feedbackElement.innerText = 'Password and Confirm Password do not match!';
-                     feedbackElement.style.display = 'block';
-                 } else {
-                    alert('Password and Confirm Password do not match!');
-                 }
+                alert('Password and Confirm Password do not match!');
                 return false; // Prevent form submission
             }
 
+             // Check agreement
              if (!agreeCheckbox.checked) {
-                 if (feedbackElement) {
-                     feedbackElement.innerText = 'You must agree to the User Agreement.';
-                     feedbackElement.style.display = 'block';
-                 } else {
-                     alert('You must agree to the User Agreement.');
-                 }
+                 alert('You must agree to the User Agreement.');
                  return false; // Prevent form submission
             }
 
             // Client-side CAPTCHA check (optional, server-side is mandatory)
-            // if (captchaInput.value.toLowerCase() !== currentCaptchaCode.toLowerCase()) {
-            //      if (feedbackElement) {
-            //          feedbackElement.innerText = 'Invalid CAPTCHA!';
-            //          feedbackElement.style.display = 'block';
-            //      } else {
-            //          alert('Invalid CAPTCHA!');
-            //      }
-            //     generateCaptcha(); // Regenerate CAPTCHA on client-side failure
-            //     return false; // Prevent form submission
+            // This provides immediate feedback but is not the primary security check
+            // if (captchaInput.toLowerCase() !== currentCaptchaCode.toLowerCase()) {
+            //      alert('Invalid CAPTCHA!');
+            //      generateCaptcha(); // Regenerate CAPTCHA on client-side failure
+            //      return false; // Prevent form submission
             // }
 
             // If all client-side checks pass, allow form submission
@@ -449,8 +434,6 @@ $captchaCodeForClient = $_SESSION['captcha_code'] ?? '';
         const showAgreementLink = document.getElementById('show-agreement-link');
         const agreementModal = document.getElementById('agreement-modal');
         const closeAgreement = document.getElementById('close-agreement');
-        const agreeCheckbox = document.getElementById('agree-checkbox');
-        const registerSubmitBtn = document.getElementById('register-submit-btn');
 
 
         function showAgreementModal() {
@@ -483,6 +466,43 @@ $captchaCodeForClient = $_SESSION['captcha_code'] ?? '';
                 registerSubmitBtn.disabled = !agreeCheckbox.checked;
             });
         }
+
+        // Google Sign-In handler
+         function handleCredentialResponse(response) {
+            console.log("Encoded JWT ID token: " + response.credential);
+            // Send this token to your server for validation
+            fetch('verify_google_login.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'credential=' + response.credential
+            })
+            .then(response => response.json()) // Assuming your PHP returns JSON
+            .then(data => {
+                if (data.success) {
+                    // Redirect on successful login/registration
+                    window.location.href = data.redirect || '../beranda/index.php';
+                } else {
+                    // Display error message
+                     alert('Google registration failed: ' + (data.message || 'Unknown error')); // Simple alert for now
+                     const errorMessageElement = document.querySelector('.error-message');
+                     if (errorMessageElement) {
+                         errorMessageElement.innerText = 'Google registration failed: ' + (data.message || 'Unknown error');
+                         errorMessageElement.style.display = 'block';
+                     } else {
+                          const newErrorMessageElement = document.createElement('p');
+                          newErrorMessageElement.className = 'error-message';
+                          newErrorMessageElement.innerText = 'Google registration failed: ' + (data.message || 'Unknown error');
+                          document.querySelector('.form-container').prepend(newErrorMessageElement);
+                     }
+                }
+            })
+            .catch(error => {
+                console.error('Error verifying Google token:', error);
+                alert('An error occurred during Google registration.');
+            });
+         }
     </script>
 </body>
 </html>

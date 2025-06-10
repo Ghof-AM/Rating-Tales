@@ -40,4 +40,22 @@ function get_logged_in_user_data() {
     return null;
 }
 
+// Fungsi untuk memeriksa keberadaan username
+function isUsernameExists($username, $excludeUserId = null) {
+    require_once __DIR__ . '/../config/database.php';
+    global $pdo;
+    
+    $query = "SELECT COUNT(*) FROM users WHERE username = ?";
+    $params = [$username];
+    
+    if ($excludeUserId !== null) {
+        $query .= " AND user_id != ?";
+        $params[] = $excludeUserId;
+    }
+    
+    $stmt = $pdo->prepare($query);
+    $stmt->execute($params);
+    return $stmt->fetchColumn() > 0;
+}
+
 ?>

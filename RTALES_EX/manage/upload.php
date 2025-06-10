@@ -78,13 +78,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_FILES['movie-poster']) && $_FILES['movie-poster']['error'] === UPLOAD_ERR_OK) {
         $posterFile = $_FILES['movie-poster'];
         $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']; // Allowed image types
-        $maxFileSize = 5 * 1024 * 1024; // 5MB
+        $maxFileSize = 10 * 1024 * 1024; // 10MB
 
         if (!in_array($posterFile['type'], $allowedTypes)) {
             $errors[] = 'Invalid poster file type. Only JPG, PNG, GIF, WEBP are allowed.';
         }
         if ($posterFile['size'] > $maxFileSize) {
-            $errors[] = 'Poster file is too large. Maximum size is 5MB.';
+            $errors[] = 'Poster file is too large. Maximum size is 10MB.';
         }
 
         // If no file errors yet, process the upload

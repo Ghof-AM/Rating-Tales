@@ -121,7 +121,7 @@ body {
     border: 3px solid #00ffff;
     box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
     flex-shrink: 0;
-     /* Fallback background if image fails */
+    position: relative;
     background-color: #363636;
 }
 
@@ -129,9 +129,35 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
-     /* Hide broken image icon */
     color: transparent;
     font-size: 0;
+    transition: filter 0.3s ease;
+}
+
+.profile-image:hover img {
+    filter: brightness(70%);
+}
+
+.profile-image .edit-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.profile-image:hover .edit-icon {
+    opacity: 1;
+}
+
+.profile-image .edit-icon i {
+    font-size: 1.2em;
 }
 /* Show alt text or a fallback if image fails to load */
 .profile-image img::before {

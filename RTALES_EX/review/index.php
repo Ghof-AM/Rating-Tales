@@ -3,7 +3,7 @@
 require_once '../includes/config.php'; // Include config.php
 
 // Redirect if not authenticated (optional, but good practice for review section)
-redirectIfNotAuthenticated();
+// redirectIfNotAuthenticated(); // Removed redirectIfNotAuthenticated to allow viewing without login
 
 // Fetch all movies from the database
 $movies = getAllMovies(); // This function now fetches average_rating and genres
@@ -26,14 +26,22 @@ $movies = getAllMovies(); // This function now fetches average_rating and genres
             </div>
             <ul class="nav-links">
                 <li><a href="../beranda/index.php"><i class="fas fa-home"></i> <span>Home</span></a></li>
+                <?php if (isAuthenticated()): ?>
                 <li><a href="../favorite/index.php"><i class="fas fa-heart"></i> <span>Favourites</span></a></li>
+                 <?php endif; ?>
                 <li class="active"><a href="#"><i class="fas fa-star"></i> <span>Review</span></a></li>
+                <?php if (isAuthenticated()): ?>
                 <li><a href="../manage/indeks.php"><i class="fas fa-film"></i> <span>Manage</span></a></li>
-                 <li><a href="../acc_page/index.php"><i class="fas fa-user"></i> <span>Profile</span></a></li>
+                <li><a href="../acc_page/index.php"><i class="fas fa-user"></i> <span>Profile</span></a></li>
+                 <?php endif; ?>
             </ul>
             <div class="bottom-links">
                 <ul>
+                     <?php if (isAuthenticated()): ?>
                     <li><a href="../autentikasi/logout.php"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+                    <?php else: ?>
+                    <li><a href="../autentikasi/form-login.php"><i class="fas fa-sign-in-alt"></i> <span>Login</span></a></li>
+                    <?php endif; ?>
                 </ul>
             </div>
         </nav>
@@ -116,25 +124,25 @@ $movies = getAllMovies(); // This function now fetches average_rating and genres
                 });
 
                  // Handle empty state visibility
-                const searchEmptyState = document.querySelector('.search-empty-state');
+                let searchEmptyState = document.querySelector('.search-empty-state'); // Re-select
 
                 if (visibleCardCount === 0 && searchTerm !== '') {
                     if (!searchEmptyState) {
                          // Hide the initial empty state if it exists and we are searching
                         if(initialEmptyState) initialEmptyState.style.display = 'none';
 
-                        const emptyState = document.createElement('div');
-                        emptyState.className = 'empty-state search-empty-state full-width';
+                        searchEmptyState = document.createElement('div'); // Create if not exists
+                        searchEmptyState.className = 'empty-state search-empty-state full-width';
                         emptyState.innerHTML = `
                             <i class="fas fa-search"></i>
                             <p>No movies found matching "${htmlspecialchars(searchTerm)}"</p>
                             <p class="subtitle">Try a different search term</p>
                         `;
-                        reviewGrid.appendChild(emptyState);
+                        reviewGrid.appendChild(searchEmptyState);
                     } else {
                          // Update text if search empty state already exists
                          searchEmptyState.querySelector('p:first-of-type').innerText = `No movies found matching "${htmlspecialchars(searchTerm)}"`;
-                         searchEmptyState.style.display = 'flex';
+                         searchEmptyState.style.display = 'flex'; // Ensure it's displayed
                     }
                 } else {
                     // Remove search empty state if cards are visible or search is cleared
@@ -161,11 +169,10 @@ $movies = getAllMovies(); // This function now fetches average_rating and genres
          // Helper function for HTML escaping (client-side)
          function htmlspecialchars(str) {
              if (typeof str !== 'string') return str;
-             return str.replace(/&/g, '&amp;')
-                       .replace(/</g, '&lt;')
-                       .replace(/>/g, '&gt;')
-                       .replace(/"/g, '&quot;')
-                       .replace(/'/g, '&#039;');
+              // Create a temporary DOM element to leverage browser's escaping
+             const div = document.createElement('div');
+             div.appendChild(document.createTextNode(str));
+             return div.innerHTML;
          }
     </script>
 </body>
